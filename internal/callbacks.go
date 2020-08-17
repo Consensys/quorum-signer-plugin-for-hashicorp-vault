@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/ecdsa"
 	"crypto/rand"
+	"errors"
 	"fmt"
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
@@ -37,12 +38,29 @@ func (b *backend) readAccount(ctx context.Context, req *logical.Request, _ *fram
 	}, nil
 }
 
-func (b *backend) createAccount(ctx context.Context, req *logical.Request, _ *framework.FieldData) (*logical.Response, error) {
-	b.Logger().Info("creating account", "path", req.Path)
+func (b *backend) createAccount(ctx context.Context, req *logical.Request, d *framework.FieldData) (*logical.Response, error) {
+	var (
+		hexAccountData *hexAccountData
+		err            error
+	)
 
-	hexAccountData, err := generateAccountAsHex()
-	if err != nil {
-		return nil, fmt.Errorf("unable to generate new account: %v", err)
+	if rawKey, ok := d.GetOk("import"); ok {
+		b.Logger().Info("importing existing account", "path", req.Path)
+		rawKeyStr, ok := rawKey.(string)
+		if !ok {
+			return nil, errors.New("key to import must be a valid string")
+		}
+		hexAccountData, err = rawKeyToHexAccountData(rawKeyStr)
+		if err != nil {
+			return nil, fmt.Errorf("unable to import account: %v", err)
+		}
+	} else {
+		b.Logger().Info("creating new account", "path", req.Path)
+
+		hexAccountData, err = generateAccount()
+		if err != nil {
+			return nil, fmt.Errorf("unable to generate new account: %v", err)
+		}
 	}
 
 	storageEntry, err := logical.StorageEntryJSON(req.Path, hexAccountData)
@@ -62,13 +80,27 @@ func (b *backend) createAccount(ctx context.Context, req *logical.Request, _ *fr
 	return resp, nil
 }
 
-func generateAccountAsHex() (*hexAccountData, error) {
+func generateAccount() (*hexAccountData, error) {
 	key, err := ecdsa.GenerateKey(secp256k1.S256(), rand.Reader)
 	if err != nil {
 		return nil, err
 	}
 	defer zeroKey(key)
 
+	return keyToHexAccountData(key)
+}
+
+func rawKeyToHexAccountData(rawKey string) (*hexAccountData, error) {
+	key, err := NewKeyFromHexString(rawKey)
+	if err != nil {
+		return nil, err
+	}
+	defer zeroKey(key)
+
+	return keyToHexAccountData(key)
+}
+
+func keyToHexAccountData(key *ecdsa.PrivateKey) (*hexAccountData, error) {
 	addr, err := PrivateKeyToAddress(key)
 	if err != nil {
 		return nil, err

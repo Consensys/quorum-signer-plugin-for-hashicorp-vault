@@ -57,16 +57,20 @@ func (b *backend) accountIDPath() *framework.Path {
 				Type:        framework.TypeString,
 				Description: "Specifies the path of the account.",
 			},
+			"import": {
+				Type:        framework.TypeString,
+				Description: "(optional) A hex-encoded private key to imported and store at the specified path.",
+			},
 		},
 
 		Operations: map[logical.Operation]framework.OperationHandler{
 			logical.ReadOperation: &framework.PathOperation{
 				Callback: b.readAccount,
-				Summary:  "Read account",
+				Summary:  "Read account address",
 			},
 			logical.UpdateOperation: &framework.PathOperation{
 				Callback: b.createAccount,
-				Summary:  "Create/update account",
+				Summary:  "Generate and store new account or use 'import' field to import an existing account.",
 			},
 		},
 	}

@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"github.com/jpmorganchase/quorum/crypto/secp256k1"
 	"golang.org/x/crypto/sha3"
+	"math/big"
+	"strings"
 )
 
 //TODO(cjh) these are duplicated in the quorum-account-hashicorp-vault-plugin project
@@ -94,4 +96,33 @@ func (a Address) ToBytes() []byte {
 // ToHexString encodes the Address as a hex string without the '0x' prefix
 func (a Address) ToHexString() string {
 	return hex.EncodeToString(a[:])
+}
+
+// NewKeyFromHexString creates a new PrivateKey from the provided hex string-representation.
+// The hex key can be with/without the '0x' prefix.
+// This function should not be used with direct user input as it performs minimal validation.
+// Auto-generated input should be used (i.e. generated keys retrieved direct from Vault) or user-input from Quorum that should have been validated at the Quorum-level.
+// Be careful if using direct user input as valid hex may not result in a valid ethereum private key.
+func NewKeyFromHexString(key string) (*ecdsa.PrivateKey, error) {
+	key = strings.TrimPrefix(key, "0x")
+	byt, err := hex.DecodeString(key)
+	if err != nil {
+		return nil, fmt.Errorf("invalid hex private key: %v", err)
+	}
+	return newKey(byt)
+}
+
+func newKey(byt []byte) (*ecdsa.PrivateKey, error) {
+	if len(byt) != keyLen {
+		return nil, fmt.Errorf("private key must have length %v bytes", keyLen)
+	}
+	var (
+		curve = secp256k1.S256()
+		key   = new(ecdsa.PrivateKey)
+	)
+	key.D = new(big.Int).SetBytes(byt)
+	key.PublicKey.Curve = curve
+	key.PublicKey.X, key.PublicKey.Y = curve.ScalarBaseMult(byt)
+
+	return key, nil
 }
