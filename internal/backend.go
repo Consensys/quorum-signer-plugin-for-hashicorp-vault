@@ -34,6 +34,22 @@ func BackendFactory(ctx context.Context, conf *logical.BackendConfig) (logical.B
 	return b, nil
 }
 
+func (b *backend) accountsPath() *framework.Path {
+	return &framework.Path{
+		Pattern: "accounts/?",
+
+		Operations: map[logical.Operation]framework.OperationHandler{
+			logical.ListOperation: &framework.PathOperation{
+				Callback: b.listAccountIDs,
+				Summary:  "List account IDs",
+			},
+		},
+
+		// TODO(cjh) needed?
+		//ExistenceCheck: b.handleExistenceCheck,
+	}
+}
+
 func (b *backend) accountIDPath() *framework.Path {
 	return &framework.Path{
 		Pattern: fmt.Sprintf("accounts/%s", framework.GenericNameRegex("acctID")),
@@ -50,10 +66,6 @@ func (b *backend) accountIDPath() *framework.Path {
 			logical.CreateOperation: &framework.PathOperation{
 				Callback: b.createAccount,
 				Summary:  "Create/update account",
-			},
-			logical.ReadOperation: &framework.PathOperation{
-				Callback: b.readAccount,
-				Summary:  "Read account",
 			},
 		},
 

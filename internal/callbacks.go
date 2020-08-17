@@ -76,6 +76,16 @@ func generateAccountAsHex() (*hexAccountData, error) {
 	}, nil
 }
 
-func (b *backend) readAccount(_ context.Context, req *logical.Request, d *framework.FieldData) (*logical.Response, error) {
-	return nil, errors.New("implement me")
+func (b *backend) listAccountIDs(ctx context.Context, req *logical.Request, _ *framework.FieldData) (*logical.Response, error) {
+	ids, err := req.Storage.List(ctx, req.Path)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := &logical.Response{
+		Data: map[string]interface{}{},
+	}
+	resp.Data["IDs"] = ids
+
+	return resp, nil
 }
