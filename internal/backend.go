@@ -8,6 +8,11 @@ import (
 	"strings"
 )
 
+const (
+	acctPath = "accounts"
+	signPath = "sign"
+)
+
 type backend struct {
 	*framework.Backend
 }
@@ -20,10 +25,11 @@ func BackendFactory(ctx context.Context, conf *logical.BackendConfig) (logical.B
 		Paths: []*framework.Path{
 			b.accountsPath(),
 			b.accountIDPath(),
+			b.signPath(),
 		},
 		PathsSpecial: &logical.Paths{
 			SealWrapStorage: []string{
-				"accounts/", // paths to encrypt when sealed
+				fmt.Sprintf("%s/", acctPath), // paths to encrypt when sealed
 			},
 		},
 	}
@@ -37,7 +43,7 @@ func BackendFactory(ctx context.Context, conf *logical.BackendConfig) (logical.B
 
 func (b *backend) accountsPath() *framework.Path {
 	return &framework.Path{
-		Pattern: "accounts/?$",
+		Pattern: fmt.Sprintf("%s/?$", acctPath),
 
 		Operations: map[logical.Operation]framework.OperationHandler{
 			logical.ListOperation: &framework.PathOperation{
@@ -50,7 +56,7 @@ func (b *backend) accountsPath() *framework.Path {
 
 func (b *backend) accountIDPath() *framework.Path {
 	return &framework.Path{
-		Pattern: fmt.Sprintf("accounts/%s", framework.GenericNameRegex("acctID")),
+		Pattern: fmt.Sprintf("%s/%s", acctPath, framework.GenericNameRegex("acctID")),
 
 		Fields: map[string]*framework.FieldSchema{
 			"acctID": {
@@ -70,7 +76,31 @@ func (b *backend) accountIDPath() *framework.Path {
 			},
 			logical.UpdateOperation: &framework.PathOperation{
 				Callback: b.createAccount,
-				Summary:  "Generate and store new account or use 'import' field to import an existing account.",
+				Summary:  "Generate and store new Quorum account, or import existing account by using the 'import' field.",
+			},
+		},
+	}
+}
+
+func (b *backend) signPath() *framework.Path {
+	return &framework.Path{
+		Pattern: fmt.Sprintf("%s/%s", signPath, framework.GenericNameRegex("acctID")),
+
+		Fields: map[string]*framework.FieldSchema{
+			"acctID": {
+				Type:        framework.TypeString,
+				Description: "Specifies the path of the account.",
+			},
+			"sign": {
+				Type:        framework.TypeString,
+				Description: "Hex-encoded payload to be signed.",
+			},
+		},
+
+		Operations: map[logical.Operation]framework.OperationHandler{
+			logical.ReadOperation: &framework.PathOperation{
+				Callback: b.sign,
+				Summary:  "Sign data with account, returns hex-encoded signature in r,s,v format where v is 0 or 1",
 			},
 		},
 	}

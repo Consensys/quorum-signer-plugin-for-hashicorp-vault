@@ -126,3 +126,19 @@ func newKey(byt []byte) (*ecdsa.PrivateKey, error) {
 
 	return key, nil
 }
+
+func sign(toSign []byte, key *ecdsa.PrivateKey) ([]byte, error) {
+	keyByt, err := PrivateKeyToBytes(key)
+	if err != nil {
+		return nil, err
+	}
+	defer zero(keyByt)
+
+	return secp256k1.Sign(toSign, keyByt)
+}
+
+func zero(byt []byte) {
+	for i := range byt {
+		byt[i] = 0
+	}
+}

@@ -4,11 +4,13 @@ import (
 	"context"
 	"crypto/ecdsa"
 	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/jpmorganchase/quorum/crypto/secp256k1"
+	"strings"
 )
 
 type hexAccountData struct {
@@ -48,7 +50,7 @@ func (b *backend) createAccount(ctx context.Context, req *logical.Request, d *fr
 		b.Logger().Info("importing existing account", "path", req.Path)
 		rawKeyStr, ok := rawKey.(string)
 		if !ok {
-			return nil, errors.New("key to import must be a valid string")
+			return nil, errors.New("key to import must be a string")
 		}
 		hexAccountData, err = rawKeyToHexAccountData(rawKeyStr)
 		if err != nil {
@@ -128,4 +130,63 @@ func (b *backend) listAccountIDs(ctx context.Context, req *logical.Request, _ *f
 	b.Logger().Info("account IDs retrieved from storage", "IDs", ids)
 
 	return logical.ListResponse(ids), nil
+}
+
+func (b *backend) sign(ctx context.Context, req *logical.Request, d *framework.FieldData) (*logical.Response, error) {
+	b.Logger().Info("signing some data", "path", req.Path)
+
+	acctID, ok := d.GetOk("acctID")
+	if !ok {
+		return nil, errors.New("acctID must be provided in path")
+	}
+	acctIDStr, ok := acctID.(string)
+	if !ok {
+		return nil, errors.New("acctID must be a string")
+	}
+
+	toSign, ok := d.GetOk("sign")
+	if !ok {
+		return nil, errors.New("hex-encoded data to sign must be provided with 'sign' field")
+	}
+	toSignStr, ok := toSign.(string)
+	if !ok {
+		return nil, errors.New("data to sign must be a string")
+	}
+
+	// decode the payload
+	toSignStrTrimmed := strings.TrimPrefix(toSignStr, "0x")
+	toSignByt, err := hex.DecodeString(toSignStrTrimmed)
+	if err != nil {
+		return nil, fmt.Errorf("data to sign must be valid hex string: %v", err)
+	}
+
+	// get the private key from storage
+	storageEntry, err := req.Storage.Get(ctx, fmt.Sprintf("%v/%v", acctPath, acctIDStr))
+	if err != nil {
+		return nil, err
+	}
+
+	hexAccountData := new(hexAccountData)
+	if err := storageEntry.DecodeJSON(hexAccountData); err != nil {
+		return nil, err
+	}
+
+	b.Logger().Info("retrieved account for signing", "account", hexAccountData.HexAddress)
+
+	key, err := NewKeyFromHexString(hexAccountData.HexKey)
+	if err != nil {
+		return nil, err
+	}
+	defer zeroKey(key)
+
+	sig, err := sign(toSignByt, key)
+	if err != nil {
+		return nil, fmt.Errorf("unable to sign data: %v", err)
+	}
+
+	return &logical.Response{
+		Data: map[string]interface{}{
+			"sig": hex.EncodeToString(sig),
+		},
+	}, nil
 }
