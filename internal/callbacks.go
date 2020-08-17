@@ -17,7 +17,7 @@ type hexAccountData struct {
 }
 
 func (b *backend) createAccount(ctx context.Context, req *logical.Request, d *framework.FieldData) (*logical.Response, error) {
-	b.Logger().Info("creating account at path %v", req.Path)
+	b.Logger().Info("creating account", "path", req.Path)
 
 	acctID, _, err := d.GetOkErr("acctID")
 	if err != nil {
@@ -77,15 +77,14 @@ func generateAccountAsHex() (*hexAccountData, error) {
 }
 
 func (b *backend) listAccountIDs(ctx context.Context, req *logical.Request, _ *framework.FieldData) (*logical.Response, error) {
+	b.Logger().Info("listing account IDs", "path", req.Path)
+
 	ids, err := req.Storage.List(ctx, req.Path)
 	if err != nil {
 		return nil, err
 	}
 
-	resp := &logical.Response{
-		Data: map[string]interface{}{},
-	}
-	resp.Data["IDs"] = ids
+	b.Logger().Info("account IDs retrieved from storage", "IDs", ids)
 
-	return resp, nil
+	return logical.ListResponse(ids), nil
 }

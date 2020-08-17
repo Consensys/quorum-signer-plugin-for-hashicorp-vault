@@ -18,6 +18,7 @@ func BackendFactory(ctx context.Context, conf *logical.BackendConfig) (logical.B
 		Help:        strings.TrimSpace("Creates and stores Quorum accounts.  Signs data using those accounts.\n"),
 		BackendType: logical.TypeLogical,
 		Paths: []*framework.Path{
+			b.accountsPath(),
 			b.accountIDPath(),
 		},
 		PathsSpecial: &logical.Paths{
@@ -36,7 +37,7 @@ func BackendFactory(ctx context.Context, conf *logical.BackendConfig) (logical.B
 
 func (b *backend) accountsPath() *framework.Path {
 	return &framework.Path{
-		Pattern: "accounts/?",
+		Pattern: "accounts/?$",
 
 		Operations: map[logical.Operation]framework.OperationHandler{
 			logical.ListOperation: &framework.PathOperation{
@@ -44,9 +45,6 @@ func (b *backend) accountsPath() *framework.Path {
 				Summary:  "List account IDs",
 			},
 		},
-
-		// TODO(cjh) needed?
-		//ExistenceCheck: b.handleExistenceCheck,
 	}
 }
 
@@ -62,14 +60,10 @@ func (b *backend) accountIDPath() *framework.Path {
 		},
 
 		Operations: map[logical.Operation]framework.OperationHandler{
-			// TODO(cjh) create vs update? ExistenceCheck have an impact?
-			logical.CreateOperation: &framework.PathOperation{
+			logical.UpdateOperation: &framework.PathOperation{
 				Callback: b.createAccount,
 				Summary:  "Create/update account",
 			},
 		},
-
-		// TODO(cjh) needed?
-		//ExistenceCheck: b.handleExistenceCheck,
 	}
 }
