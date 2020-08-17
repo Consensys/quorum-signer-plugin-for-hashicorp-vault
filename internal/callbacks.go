@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/ecdsa"
 	"crypto/rand"
-	"errors"
 	"fmt"
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
@@ -12,24 +11,34 @@ import (
 )
 
 type hexAccountData struct {
-	hexAddress string
-	hexKey     string
+	HexAddress string
+	HexKey     string
 }
 
-func (b *backend) createAccount(ctx context.Context, req *logical.Request, d *framework.FieldData) (*logical.Response, error) {
-	b.Logger().Info("creating account", "path", req.Path)
+func (b *backend) readAccount(ctx context.Context, req *logical.Request, _ *framework.FieldData) (*logical.Response, error) {
+	b.Logger().Info("reading account", "path", req.Path)
 
-	acctID, _, err := d.GetOkErr("acctID")
+	// TODO(cjh) perhaps we should store the addr and key separately so that we only need to Get the addr - this might
+	//  get complicated when we consider versioning.  Perhaps store ID -> addr, and addr -> key to get around this?
+	storageEntry, err := req.Storage.Get(ctx, req.Path)
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO(cjh) check is not entered & remove
-	if want := fmt.Sprintf("accounts/%v", acctID); req.Path != want {
-		msg := fmt.Sprintf("CHRISSY req.Path was not expected value: want %v, got %v", want, req.Path)
-		b.Logger().Error(msg)
-		return nil, errors.New(msg)
+	hexAccountData := new(hexAccountData)
+	if err := storageEntry.DecodeJSON(hexAccountData); err != nil {
+		return nil, err
 	}
+
+	return &logical.Response{
+		Data: map[string]interface{}{
+			"addr": hexAccountData.HexAddress,
+		},
+	}, nil
+}
+
+func (b *backend) createAccount(ctx context.Context, req *logical.Request, _ *framework.FieldData) (*logical.Response, error) {
+	b.Logger().Info("creating account", "path", req.Path)
 
 	hexAccountData, err := generateAccountAsHex()
 	if err != nil {
@@ -48,7 +57,7 @@ func (b *backend) createAccount(ctx context.Context, req *logical.Request, d *fr
 	resp := &logical.Response{
 		Data: map[string]interface{}{},
 	}
-	resp.Data["addr"] = hexAccountData.hexAddress
+	resp.Data["addr"] = hexAccountData.HexAddress
 
 	return resp, nil
 }
@@ -71,8 +80,8 @@ func generateAccountAsHex() (*hexAccountData, error) {
 	}
 
 	return &hexAccountData{
-		hexAddress: addr.ToHexString(),
-		hexKey:     hexKey,
+		HexAddress: addr.ToHexString(),
+		HexKey:     hexKey,
 	}, nil
 }
 

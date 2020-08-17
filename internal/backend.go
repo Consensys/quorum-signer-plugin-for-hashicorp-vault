@@ -60,6 +60,10 @@ func (b *backend) accountIDPath() *framework.Path {
 		},
 
 		Operations: map[logical.Operation]framework.OperationHandler{
+			logical.ReadOperation: &framework.PathOperation{
+				Callback: b.readAccount,
+				Summary:  "Read account",
+			},
 			logical.UpdateOperation: &framework.PathOperation{
 				Callback: b.createAccount,
 				Summary:  "Create/update account",
