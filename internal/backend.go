@@ -18,7 +18,7 @@ func BackendFactory(ctx context.Context, conf *logical.BackendConfig) (logical.B
 		Help:        strings.TrimSpace("Creates and stores Quorum accounts.  Signs data using those accounts.\n"),
 		BackendType: logical.TypeLogical,
 		Paths: []*framework.Path{
-			b.accountPath(),
+			b.accountIDPath(),
 		},
 		PathsSpecial: &logical.Paths{
 			SealWrapStorage: []string{
@@ -34,7 +34,7 @@ func BackendFactory(ctx context.Context, conf *logical.BackendConfig) (logical.B
 	return b, nil
 }
 
-func (b *backend) accountPath() *framework.Path {
+func (b *backend) accountIDPath() *framework.Path {
 	return &framework.Path{
 		Pattern: fmt.Sprintf("accounts/%s", framework.GenericNameRegex("acctID")),
 
