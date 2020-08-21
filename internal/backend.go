@@ -74,11 +74,16 @@ func (b *backend) accountIDPath() *framework.Path {
 				Callback: b.readAccount,
 				Summary:  "Read account address",
 			},
-			logical.UpdateOperation: &framework.PathOperation{
+			logical.CreateOperation: &framework.PathOperation{
 				Callback: b.createAccount,
 				Summary:  "Generate and store new Quorum account, or import existing account by using the 'import' field.",
 			},
+			logical.UpdateOperation: &framework.PathOperation{
+				Callback: b.updateAccount,
+				Summary:  "Generate and store new Quorum account, or import existing account by using the 'import' field.",
+			},
 		},
+		ExistenceCheck: b.accountExistenceCheck, // determines whether create or update operation is called
 	}
 }
 

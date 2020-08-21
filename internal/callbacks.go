@@ -18,6 +18,23 @@ type hexAccountData struct {
 	HexKey     string
 }
 
+func (b *backend) accountExistenceCheck(ctx context.Context, req *logical.Request, _ *framework.FieldData) (bool, error) {
+	b.Logger().Info("performing existence check")
+
+	got, err := req.Storage.Get(ctx, req.Path)
+	if err != nil {
+		b.Logger().Info("unable to perform existence check", "err", err)
+		return false, err
+	}
+
+	var exists bool
+	if got != nil {
+		exists = true
+	}
+	b.Logger().Info("performed existence check", "result", exists)
+	return exists, nil
+}
+
 func (b *backend) readAccount(ctx context.Context, req *logical.Request, _ *framework.FieldData) (*logical.Response, error) {
 	b.Logger().Info("reading account", "path", req.Path)
 
@@ -38,6 +55,10 @@ func (b *backend) readAccount(ctx context.Context, req *logical.Request, _ *fram
 			"addr": hexAccountData.HexAddress,
 		},
 	}, nil
+}
+
+func (b *backend) updateAccount(_ context.Context, _ *logical.Request, _ *framework.FieldData) (*logical.Response, error) {
+	return nil, errors.New("updating existing accounts is not supported")
 }
 
 func (b *backend) createAccount(ctx context.Context, req *logical.Request, d *framework.FieldData) (*logical.Response, error) {

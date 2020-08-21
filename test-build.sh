@@ -20,7 +20,7 @@ vault secrets enable quorum-signer
 vault write -force quorum-signer/accounts/myAcct
 vault write -force quorum-signer/accounts/myAcct
 vault write -force quorum-signer/accounts/myOtherAcct
-#vault write quorum-signer/accounts/myImportedAcct rawKey=1fe8f1ad4053326db20529257ac9401f2e6c769ef1d736b8c2f5aba5f787c72b
+#vault write quorum-signer/accounts/myImportedAcct import=1fe8f1ad4053326db20529257ac9401f2e6c769ef1d736b8c2f5aba5f787c72b
 
 vault read quorum-signer/accounts/myAcct
 #vault read quorum-signer/accounts/myOtherAcct
