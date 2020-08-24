@@ -19,7 +19,7 @@ type backend struct {
 }
 
 func BackendFactory(ctx context.Context, conf *logical.BackendConfig) (logical.Backend, error) {
-	var b backend
+	b := new(backend)
 	b.Backend = &framework.Backend{
 		Help:        strings.TrimSpace("Creates and stores Quorum accounts.  Signs data using those accounts.\n"),
 		BackendType: logical.TypeLogical,
@@ -28,6 +28,7 @@ func BackendFactory(ctx context.Context, conf *logical.BackendConfig) (logical.B
 			b.accountIDPath(),
 			b.signPath(),
 		},
+		// TODO(cjh) tests to check this?
 		PathsSpecial: &logical.Paths{
 			// paths to encrypt when sealed
 			SealWrapStorage: []string{

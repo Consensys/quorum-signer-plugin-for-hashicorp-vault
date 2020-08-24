@@ -7,5 +7,6 @@ require (
 	github.com/hashicorp/vault/api v1.0.4
 	github.com/hashicorp/vault/sdk v0.1.13
 	github.com/jpmorganchase/quorum/crypto/secp256k1 v0.0.0-20200813122010-de45c9bb8524
+	github.com/stretchr/testify v1.3.0
 	golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2
 )
