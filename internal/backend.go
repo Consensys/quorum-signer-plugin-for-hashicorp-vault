@@ -11,6 +11,7 @@ import (
 const (
 	acctPath = "accounts"
 	signPath = "sign"
+	keyPath  = "keys"
 )
 
 type backend struct {
@@ -28,8 +29,10 @@ func BackendFactory(ctx context.Context, conf *logical.BackendConfig) (logical.B
 			b.signPath(),
 		},
 		PathsSpecial: &logical.Paths{
+			// paths to encrypt when sealed
 			SealWrapStorage: []string{
-				fmt.Sprintf("%s/", acctPath), // paths to encrypt when sealed
+				fmt.Sprintf("%s/", acctPath),
+				fmt.Sprintf("%s/", keyPath),
 			},
 		},
 	}

@@ -38,21 +38,19 @@ func (b *backend) accountExistenceCheck(ctx context.Context, req *logical.Reques
 func (b *backend) readAccount(ctx context.Context, req *logical.Request, _ *framework.FieldData) (*logical.Response, error) {
 	b.Logger().Info("reading account", "path", req.Path)
 
-	// TODO(cjh) perhaps we should store the addr and key separately so that we only need to Get the addr - this might
-	//  get complicated when we consider versioning.  Perhaps store ID -> addr, and addr -> key to get around this?
 	storageEntry, err := req.Storage.Get(ctx, req.Path)
 	if err != nil {
 		return nil, err
 	}
 
-	hexAccountData := new(hexAccountData)
-	if err := storageEntry.DecodeJSON(hexAccountData); err != nil {
+	hexAddr := new(string)
+	if err := storageEntry.DecodeJSON(hexAddr); err != nil {
 		return nil, err
 	}
 
 	return &logical.Response{
 		Data: map[string]interface{}{
-			"addr": hexAccountData.HexAddress,
+			"addr": hexAddr,
 		},
 	}, nil
 }
@@ -73,6 +71,7 @@ func (b *backend) createAccount(ctx context.Context, req *logical.Request, d *fr
 		if !ok {
 			return nil, errors.New("key to import must be a string")
 		}
+
 		hexAccountData, err = rawKeyToHexAccountData(rawKeyStr)
 		if err != nil {
 			return nil, fmt.Errorf("unable to import account: %v", err)
@@ -86,13 +85,29 @@ func (b *backend) createAccount(ctx context.Context, req *logical.Request, d *fr
 		}
 	}
 
-	storageEntry, err := logical.StorageEntryJSON(req.Path, hexAccountData)
+	addrStorageEntry, err := logical.StorageEntryJSON(req.Path, hexAccountData.HexAddress)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := req.Storage.Put(ctx, storageEntry); err != nil {
-		return nil, fmt.Errorf("unable to store account: %v", err)
+	acctID, ok := d.GetOk("acctID")
+	if !ok {
+		return nil, errors.New("acctID must be provided in path")
+	}
+	acctIDStr, ok := acctID.(string)
+	if !ok {
+		return nil, errors.New("acctID must be a string")
+	}
+	keyStorageEntry, err := logical.StorageEntryJSON(fmt.Sprintf("%v/%v", keyPath, acctIDStr), hexAccountData.HexKey)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := req.Storage.Put(ctx, addrStorageEntry); err != nil {
+		return nil, fmt.Errorf("unable to store account address: %v", err)
+	}
+	if err := req.Storage.Put(ctx, keyStorageEntry); err != nil {
+		return nil, fmt.Errorf("unable to store account key: %v", err)
 	}
 
 	resp := &logical.Response{
@@ -182,19 +197,19 @@ func (b *backend) sign(ctx context.Context, req *logical.Request, d *framework.F
 	}
 
 	// get the private key from storage
-	storageEntry, err := req.Storage.Get(ctx, fmt.Sprintf("%v/%v", acctPath, acctIDStr))
+	storageEntry, err := req.Storage.Get(ctx, fmt.Sprintf("%v/%v", keyPath, acctIDStr))
 	if err != nil {
 		return nil, err
 	}
 
-	hexAccountData := new(hexAccountData)
-	if err := storageEntry.DecodeJSON(hexAccountData); err != nil {
+	hexKey := new(string)
+	if err := storageEntry.DecodeJSON(hexKey); err != nil {
 		return nil, err
 	}
 
-	b.Logger().Info("retrieved account for signing", "account", hexAccountData.HexAddress)
+	b.Logger().Info("retrieved account for signing")
 
-	key, err := NewKeyFromHexString(hexAccountData.HexKey)
+	key, err := NewKeyFromHexString(*hexKey)
 	if err != nil {
 		return nil, err
 	}
