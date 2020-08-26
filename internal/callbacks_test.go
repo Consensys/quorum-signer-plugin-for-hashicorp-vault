@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
+	util "github.com/jpmorganchase/quorum-go-utils/account"
 	"github.com/stretchr/testify/require"
 	"testing"
 )
@@ -136,9 +137,9 @@ func TestCreateAccount_CreateNew(t *testing.T) {
 	err = keySE.DecodeJSON(&storedKey)
 	require.NoError(t, err)
 
-	key, err := NewKeyFromHexString(storedKey)
+	key, err := util.NewKeyFromHexString(storedKey)
 	require.NoError(t, err)
-	addrFromKey, err := PrivateKeyToAddress(key)
+	addrFromKey, err := util.PrivateKeyToAddress(key)
 	require.NoError(t, err)
 
 	require.Equal(t, respAddr, addrFromKey.ToHexString())

@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
+	util "github.com/jpmorganchase/quorum-go-utils/account"
 	"github.com/jpmorganchase/quorum/crypto/secp256k1"
 	"strings"
 )
@@ -125,28 +126,28 @@ func generateAccount() (*hexAccountData, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer zeroKey(key)
+	defer util.ZeroKey(key)
 
 	return keyToHexAccountData(key)
 }
 
 func rawKeyToHexAccountData(rawKey string) (*hexAccountData, error) {
-	key, err := NewKeyFromHexString(rawKey)
+	key, err := util.NewKeyFromHexString(rawKey)
 	if err != nil {
 		return nil, err
 	}
-	defer zeroKey(key)
+	defer util.ZeroKey(key)
 
 	return keyToHexAccountData(key)
 }
 
 func keyToHexAccountData(key *ecdsa.PrivateKey) (*hexAccountData, error) {
-	addr, err := PrivateKeyToAddress(key)
+	addr, err := util.PrivateKeyToAddress(key)
 	if err != nil {
 		return nil, err
 	}
 
-	hexKey, err := PrivateKeyToHexString(key)
+	hexKey, err := util.PrivateKeyToHexString(key)
 	if err != nil {
 		return nil, err
 	}
@@ -211,13 +212,13 @@ func (b *backend) sign(ctx context.Context, req *logical.Request, d *framework.F
 
 	b.Logger().Info("retrieved account for signing")
 
-	key, err := NewKeyFromHexString(*hexKey)
+	key, err := util.NewKeyFromHexString(*hexKey)
 	if err != nil {
 		return nil, err
 	}
-	defer zeroKey(key)
+	defer util.ZeroKey(key)
 
-	sig, err := sign(toSignByt, key)
+	sig, err := util.Sign(toSignByt, key)
 	if err != nil {
 		return nil, fmt.Errorf("unable to sign data: %v", err)
 	}
