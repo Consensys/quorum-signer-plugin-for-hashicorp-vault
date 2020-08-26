@@ -81,12 +81,27 @@ func TestReadAccount(t *testing.T) {
 	require.Equal(t, "96093cadd4bceb60ebdda5b875f5825ef1e91a8e", resp.Data["addr"].(string))
 }
 
+func TestReadAccount_AccountNotFound(t *testing.T) {
+	b := createBackend(t)
+
+	storage := &logical.InmemStorage{}
+
+	req := &logical.Request{
+		Storage: storage,
+		Path:    "accounts/myAcct",
+	}
+
+	resp, err := b.readAccount(context.Background(), req, nil)
+	require.NoError(t, err)
+	require.Nil(t, resp)
+}
+
 func TestUpdateAccount(t *testing.T) {
 	b := createBackend(t)
 
 	_, err := b.updateAccount(nil, nil, nil)
 	require.Error(t, err)
-	require.EqualError(t, unsupportedErr, err.Error())
+	require.EqualError(t, updateUnsupportedErr, err.Error())
 }
 
 func TestCreateAccount_CreateNew(t *testing.T) {
