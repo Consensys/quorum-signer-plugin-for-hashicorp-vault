@@ -11,13 +11,15 @@ When used in conjunction with the [Hashicorp Vault plugin for Quorum](https://gi
 make
 ```
 
-## Quickstart (Vault dev mode)
+## Quickstart 
 > Note: Starting the Vault server in dev mode requires very little setup and is useful for experimentation/testing.  It is insecure and does not persist data between restarts so should not be used for production.
 
 > Note: Using plugins with a non-dev mode Vault server requires additional Vault configuration and for the plugin to be registered before it can be used.  See [Plugin Registration](https://www.vaultproject.io/docs/internals/plugins#plugin-registration) for more info.
 
 ```shell
-make 
+make
+```
+```shell
 vault server -dev -dev-root-token-id=root \
     -dev-plugin-dir=/path/to/hashicorp-vault-signing-plugin/build
 ``` 
@@ -35,6 +37,21 @@ vault secrets enable -path quorum-signer quorum-signer-<VERSION>
 ```
 
 The `quorum-signer` secret-engine will now be available for use. 
+
+### Vault non-dev mode
+1. Add `plugin_directory` and `api_addr` fields to `config.hcl`, e.g.: 
+    ```
+    plugin_directory = "/hashicorp-vault-signing-plugin/build"
+    api_addr = "https//localhost:8200"
+    ``` 
+1. Register the plugin in Vault
+    ```shell
+    vault write sys/plugins/catalog/secret/quorum-signer-<VERSION> \
+        sha256=<BINARY SHA256SUM> \
+        command="quorum-signer-<VERSION> --ca-cert=<CA CERT> --client-cert=<CLIENT CERT> --client-key=<CLIENT KEY>"
+    ```
+   * `<BINARY SHA256SUM>`: Hash of plugin binary (e.g. from `shasum -a 256 /hashicorp-vault-signing-plugin/build/quorum-signer-<VERSION>`)
+   * `<CA CERT>`, `<CLIENT CERT>`, `<CLIENT KEY>`: The plugin acts as a client to the Vault server.  If TLS is configured on the Vault server then the paths to the necessary client TLS certs must be provided
 
 ## API
 The `quorum-signer` secret-engine stores accounts with a user-defined `acctID` (e.g. `myAcct`).  Interacting with accounts is made possible through the plugin's API.
