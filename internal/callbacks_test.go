@@ -4,11 +4,12 @@ import (
 	"context"
 	"encoding/hex"
 	"fmt"
+	"testing"
+
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
 	util "github.com/jpmorganchase/quorum-go-utils/account"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func createBackend(t *testing.T) *backend {

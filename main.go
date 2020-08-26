@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/hashicorp/go-hclog"
 	"os"
 
+	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vault/api"
 	"github.com/hashicorp/vault/sdk/plugin"
 	signer "github.com/jpmorganchase/hashicorp-vault-plugin-quorum-signer/internal"
