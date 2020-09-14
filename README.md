@@ -2,9 +2,9 @@
 
 The Quorum Signer plugin is a [custom plugin backend for Hashicorp Vault](https://www.vaultproject.io/docs/plugin) that adds a new `quorum-signer` secret-engine type to Hashicorp Vault.  
 
-The `quorum-signer` secret-engine creates and stores Quorum accounts (including private keys) and can be used to sign data with those accounts.  
+The `quorum-signer` secret-engine creates and stores Quorum accounts that can be used to sign data.
 
-When used in conjunction with the [Hashicorp Vault plugin for Quorum](https://github.com/consensys/quorum-account-plugin-hashicorp-vault), a Quorum (or `clef`) node can sign transactions and data as normal, with the added security benefit that account private keys never leave the boundaries of Vault and never have to be directly managed.
+When used in conjunction with the [Hashicorp Vault plugin for Quorum](https://github.com/consensys/quorum-account-plugin-hashicorp-vault), Quorum can sign transactions and data as normal, with the added security benefit that account private keys never leave the boundaries of Vault and never have to be directly managed.
 
 ## Building
 ```shell
@@ -14,14 +14,12 @@ make
 ## Quickstart 
 > Note: Starting the Vault server in dev mode requires very little setup and is useful for experimentation/testing.  It is insecure and does not persist data between restarts so should not be used for production.
 
-> Note: Using plugins with a non-dev mode Vault server requires additional Vault configuration and for the plugin to be registered before it can be used.  See [Plugin Registration](https://www.vaultproject.io/docs/internals/plugins#plugin-registration) for more info.
-
 ```shell
 make
 ```
 ```shell
 vault server -dev -dev-root-token-id=root \
-    -dev-plugin-dir=/path/to/hashicorp-vault-signing-plugin/build
+    -dev-plugin-dir=/path/to/quorum-signer-plugin-for-hashicorp-vault/build
 ``` 
 
 The output should include something similar to the following to indicate the plugin is available:
@@ -39,9 +37,11 @@ vault secrets enable -path quorum-signer quorum-signer-<VERSION>
 The `quorum-signer` secret-engine will now be available for use. 
 
 ### Vault non-dev mode
+> Note: Using plugins with a non-dev mode Vault server requires additional Vault configuration and for the plugin to be registered before it can be used.  See [Plugin Registration](https://www.vaultproject.io/docs/internals/plugins#plugin-registration) for more info.
+
 1. Add `plugin_directory` and `api_addr` fields to `config.hcl`, e.g.: 
     ```
-    plugin_directory = "/hashicorp-vault-signing-plugin/build"
+    plugin_directory = "path/to/quorum-signer-plugin-for-hashicorp-vault/build"
     api_addr = "https//localhost:8200"
     ``` 
 1. Register the plugin in Vault
