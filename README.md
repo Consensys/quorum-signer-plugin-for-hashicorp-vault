@@ -82,7 +82,7 @@ addr    6038dc01869425004ca0b8370f6c81cf464213b3
 
 ### Get public account data
 ```shell
- vault read quorum-signer/accounts/<acctID>
+vault read quorum-signer/accounts/<acctID>
 
 Key     Value
 ---     -----
@@ -90,12 +90,12 @@ addr    874f98d93427b145fcf1bb2c34f733f6c14597df
 ```
 
 ### Sign data with an account
-> Note: The `quorum-signer` is a "dumb" signer - it simply signs the provided data with the specified account.  Quorum data is prefixed and hashed before it is signed (e.g. [EIP-191](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-191.md).  Any data sent to the `quorum-signer` for signing should have already been prefixed and hashed.  
+> Note: The `quorum-signer` is a "dumb" signer - it simply signs the provided data with the specified account.  Quorum data is prefixed and hashed before it is signed (e.g. [EIP-191](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-191.md)).  The `quorum-signer` expects any data to have already been prefixed and hashed.  
 >
 > This is handled automatically when using `quorum-signer` in conjunction with the [Hashicorp Vault plugin for Quorum](https://github.com/consensys/quorum-account-plugin-hashicorp-vault).
 
 ```shell
-vault read quorum-signer/sign/myAcct sign=bc4c915d69896b198f0292a72373a2bdcd0d52bccbfcec11d9c84c0fff71b0bc
+vault read quorum-signer/sign/<acctID> sign=bc4c915d69896b198f0292a72373a2bdcd0d52bccbfcec11d9c84c0fff71b0bc
 
 Key    Value
 ---    -----
