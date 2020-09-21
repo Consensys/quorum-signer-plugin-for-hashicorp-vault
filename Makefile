@@ -2,7 +2,7 @@ OUTPUT_DIR := "$(shell pwd)/build"
 NAME := "quorum-signer"
 VERSION := "0.0.1-SNAPSHOT"
 
-default: clean checkfmt test build
+default: clean tools checkfmt test build
 
 clean:
 	@rm -rf ${OUTPUT_DIR}
