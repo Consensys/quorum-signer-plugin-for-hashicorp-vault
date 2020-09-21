@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
-	util "github.com/jpmorganchase/quorum-go-utils/account"
+	util "github.com/consensys/quorum-go-utils/account"
 	"github.com/stretchr/testify/require"
 )
 
