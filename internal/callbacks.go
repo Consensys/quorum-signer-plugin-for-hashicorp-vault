@@ -9,9 +9,9 @@ import (
 	"fmt"
 	"strings"
 
+	util "github.com/consensys/quorum-go-utils/account"
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
-	util "github.com/consensys/quorum-go-utils/account"
 	"github.com/jpmorganchase/quorum/crypto/secp256k1"
 )
 
