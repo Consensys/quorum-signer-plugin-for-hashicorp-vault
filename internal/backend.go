@@ -29,7 +29,6 @@ func BackendFactory(ctx context.Context, conf *logical.BackendConfig) (logical.B
 			b.accountIDPath(),
 			b.signPath(),
 		},
-		// TODO(cjh) tests to check this?
 		PathsSpecial: &logical.Paths{
 			// paths to encrypt when sealed
 			SealWrapStorage: []string{
