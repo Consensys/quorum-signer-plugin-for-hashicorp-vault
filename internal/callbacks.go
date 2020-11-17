@@ -3,16 +3,14 @@ package internal
 import (
 	"context"
 	"crypto/ecdsa"
-	"crypto/rand"
 	"encoding/hex"
 	"errors"
 	"fmt"
 	"strings"
 
-	util "github.com/consensys/quorum-go-utils/account"
+	util "github.com/ConsenSys/quorum-go-utils/account"
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
-	"github.com/jpmorganchase/quorum/crypto/secp256k1"
 )
 
 type hexAccountData struct {
@@ -127,7 +125,7 @@ func (b *backend) createAccount(ctx context.Context, req *logical.Request, d *fr
 }
 
 func generateAccount() (*hexAccountData, error) {
-	key, err := ecdsa.GenerateKey(secp256k1.S256(), rand.Reader)
+	key, err := util.GenerateKey()
 	if err != nil {
 		return nil, err
 	}

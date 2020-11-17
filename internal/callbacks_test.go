@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"testing"
 
-	util "github.com/consensys/quorum-go-utils/account"
+	util "github.com/ConsenSys/quorum-go-utils/account"
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/stretchr/testify/require"
