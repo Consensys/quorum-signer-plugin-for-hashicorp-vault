@@ -12,7 +12,13 @@ make
 ```
 
 ## Quickstart 
-> Note: Starting the Vault server in dev mode requires very little setup and is useful for experimentation/testing.  It is insecure and does not persist data between restarts so should not be used for production.
+> This quickstart uses the `vault` dev server.  The dev server is quick and easy to set up but should not be used for production.
+>   
+> The dev server does **not**:
+>    * persist data between restarts
+>    * encrypt HTTP communications with TLS  
+>    
+>    For more advanced Vault topics (such as configuring storage, TLS, and approle token renewal) see the [Vault docs](https://www.vaultproject.io/docs).
 
 ```shell
 make
@@ -37,7 +43,8 @@ vault secrets enable -path quorum-signer quorum-signer-<VERSION>
 The `quorum-signer` secret-engine will now be available for use. 
 
 ### Vault non-dev mode
-> Note: Using plugins with a non-dev mode Vault server requires additional Vault configuration and for the plugin to be registered before it can be used.  See [Plugin Registration](https://www.vaultproject.io/docs/internals/plugins#plugin-registration) for more info.
+
+Using plugins with a non-dev mode Vault server requires additional Vault configuration and for the plugin to be registered before it can be used.  See [Plugin Registration](https://www.vaultproject.io/docs/internals/plugins#plugin-registration) for more info.
 
 1. Add `plugin_directory` and `api_addr` fields to `config.hcl`, e.g.: 
     ```
