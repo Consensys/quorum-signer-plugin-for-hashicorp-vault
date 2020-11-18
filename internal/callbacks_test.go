@@ -3,7 +3,6 @@ package internal
 import (
 	"context"
 	"encoding/hex"
-	"fmt"
 	"testing"
 
 	util "github.com/ConsenSys/quorum-go-utils/account"
@@ -244,12 +243,6 @@ func TestListAccountIDs(t *testing.T) {
 	require.Len(t, ids, 2)
 	require.Contains(t, ids, "myAcct")
 	require.Contains(t, ids, "anotherAcct")
-}
-
-func TestDelete(t *testing.T) {
-	want := []byte{21, 228, 169, 48, 162, 94, 71, 55, 85, 214, 104, 193, 92, 14, 27, 132, 111, 18, 108, 11, 194, 150, 169, 254, 177, 54, 67, 10, 14, 208, 100, 250, 123, 166, 26, 0, 44, 215, 237, 186, 32, 198, 241, 77, 206, 214, 249, 124, 212, 36, 249, 4, 171, 87, 68, 147, 238, 96, 8, 180, 122, 172, 175, 38, 1}
-	wantHex := hex.EncodeToString(want)
-	fmt.Println(wantHex)
 }
 
 func TestSign(t *testing.T) {
