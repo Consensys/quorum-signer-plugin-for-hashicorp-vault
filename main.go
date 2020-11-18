@@ -3,10 +3,10 @@ package main
 import (
 	"os"
 
+	signer "github.com/ConsenSys/quorum-signer-plugin-for-hashicorp-vault/internal"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vault/api"
 	"github.com/hashicorp/vault/sdk/plugin"
-	signer "github.com/jpmorganchase/hashicorp-vault-plugin-quorum-signer/internal"
 )
 
 func main() {

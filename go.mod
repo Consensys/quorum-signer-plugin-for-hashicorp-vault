@@ -1,4 +1,4 @@
-module github.com/jpmorganchase/hashicorp-vault-plugin-quorum-signer
+module github.com/ConsenSys/quorum-signer-plugin-for-hashicorp-vault
 
 go 1.13
 
