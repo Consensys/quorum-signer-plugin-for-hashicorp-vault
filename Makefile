@@ -1,6 +1,6 @@
 OUTPUT_DIR := "$(shell pwd)/build"
 NAME := "quorum-signer"
-VERSION := "0.0.1-SNAPSHOT"
+VERSION := "0.1.0-SNAPSHOT"
 
 default: clean tools checkfmt test build
 

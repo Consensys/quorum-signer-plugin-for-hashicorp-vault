@@ -4,7 +4,7 @@ The Quorum Signer plugin is a [custom plugin backend for Hashicorp Vault](https:
 
 The `quorum-signer` secret-engine creates and stores Quorum accounts that can be used to sign data.
 
-When used in conjunction with the [Hashicorp Vault plugin for Quorum](https://github.com/consensys/quorum-account-plugin-hashicorp-vault), Quorum can sign transactions and data as normal, with the added security benefit that account private keys never leave the boundaries of Vault and never have to be directly managed.
+When used in conjunction with the [Hashicorp Vault plugin for Quorum](https://github.com/ConsenSys/quorum-account-plugin-hashicorp-vault), Quorum can sign transactions and data as normal, with the added security benefit that account private keys never leave the boundaries of Vault and never have to be directly managed.
 
 ## Building
 ```shell
@@ -36,6 +36,7 @@ The following dev plugins are registered in the catalog:
 
 In another terminal:
 ```shell
+export VAULT_ADDR=http://localhost:8200
 export VAULT_TOKEN=root
 vault secrets enable -path quorum-signer quorum-signer-<VERSION>
 ```
@@ -62,6 +63,17 @@ Using plugins with a non-dev mode Vault server requires additional Vault configu
 
 ## API
 The `quorum-signer` secret-engine stores accounts with a user-defined `acctID` (e.g. `myAcct`).  Interacting with accounts is made possible through the plugin's API.
+
+### List acctIDs
+
+```shell
+vault list quorum-signer/accounts
+
+Keys
+----
+myAcct
+otherAcct
+```
 
 ### Create new account
 > Note: Overwriting existing secrets (i.e. using the same `acctID` is not supported)
@@ -99,7 +111,7 @@ addr    874f98d93427b145fcf1bb2c34f733f6c14597df
 ### Sign data with an account
 > Note: The `quorum-signer` is a "dumb" signer - it simply signs the provided data with the specified account.  Quorum data is prefixed and hashed before it is signed (e.g. [EIP-191](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-191.md)).  The `quorum-signer` expects any data to have already been prefixed and hashed.  
 >
-> This is handled automatically when using `quorum-signer` in conjunction with the [Hashicorp Vault plugin for Quorum](https://github.com/consensys/quorum-account-plugin-hashicorp-vault).
+> This is handled automatically when using `quorum-signer` in conjunction with the [Hashicorp Vault plugin for Quorum](https://github.com/ConsenSys/quorum-account-plugin-hashicorp-vault).
 
 ```shell
 vault read quorum-signer/sign/<acctID> sign=bc4c915d69896b198f0292a72373a2bdcd0d52bccbfcec11d9c84c0fff71b0bc
