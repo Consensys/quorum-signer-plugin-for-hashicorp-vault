@@ -1,6 +1,7 @@
 OUTPUT_DIR := "$(shell pwd)/build"
 NAME := "quorum-signer"
 VERSION := "0.1.0-SNAPSHOT"
+OS_ARCH := "$(shell go env GOOS)-$(shell go env GOARCH)"
 
 default: clean tools checkfmt test build
 
@@ -21,8 +22,12 @@ build:
 	@mkdir -p ${OUTPUT_DIR}
 	@echo Output to ${OUTPUT_DIR}
 	@GOFLAGS="-mod=readonly" go build \
-		-o "${OUTPUT_DIR}/${NAME}-${VERSION}" \
+		-o "${OUTPUT_DIR}/dist/${NAME}-${VERSION}-${OS_ARCH}" \
 		.
+
+package: build
+	@zip -j -FS -q ${OUTPUT_DIR}/dist/${NAME}-${VERSION}-${OS_ARCH}.zip ${OUTPUT_DIR}/dist/*
+	@shasum -a 256 ${OUTPUT_DIR}/dist/${NAME}-${VERSION}-${OS_ARCH}.zip | awk '{print $$1}' > ${OUTPUT_DIR}/dist/${NAME}-${VERSION}-${OS_ARCH}-sha256.checksum
 
 tools: goimports
 
