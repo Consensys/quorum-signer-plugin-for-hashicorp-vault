@@ -26,8 +26,9 @@ build:
 		.
 
 package: build
+	@shasum -a 256 ${OUTPUT_DIR}/dist/${NAME}-${VERSION}-${OS_ARCH} | awk '{print $$1}' > ${OUTPUT_DIR}/dist/${NAME}-${VERSION}-${OS_ARCH}.checksum
 	@zip -j -FS -q ${OUTPUT_DIR}/dist/${NAME}-${VERSION}-${OS_ARCH}.zip ${OUTPUT_DIR}/dist/*
-	@shasum -a 256 ${OUTPUT_DIR}/dist/${NAME}-${VERSION}-${OS_ARCH}.zip | awk '{print $$1}' > ${OUTPUT_DIR}/dist/${NAME}-${VERSION}-${OS_ARCH}-sha256.checksum
+	@shasum -a 256 ${OUTPUT_DIR}/dist/${NAME}-${VERSION}-${OS_ARCH}.zip | awk '{print $$1}' > ${OUTPUT_DIR}/dist/${NAME}-${VERSION}-${OS_ARCH}.zip.checksum
 
 tools: goimports
 
