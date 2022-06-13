@@ -33,4 +33,4 @@ jobs:
           name: ${{ steps.meta.outputs.os_arch }}-artifacts
           path: |
             build/dist/*.zip
-            build/dist/*.checksum
+            build/dist/*.zip.checksum
