@@ -39,12 +39,20 @@ jobs:
           fi
           echo "::set-output name=version::${version}"
           echo "::set-output name=os_arch::$(go env GOOS)-$(go env GOARCH)"
-      - name: Build and package
+      - name: Create macos dist
+        if: ${{ matrix.os == 'macos-latest' }}
         env:
           version: ${{ steps.meta.outputs.version }}
         run: |
           export PATH=$PATH:$(go env GOPATH)/bin
           make default package VERSION="$version"
+      - name: Create portable linux dist
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        env:
+          version: ${{ steps.meta.outputs.version }}
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          make default package VERSION="$version" extraldflags='-linkmode external -extldflags "-static"'
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
