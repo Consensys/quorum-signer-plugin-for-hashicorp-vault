@@ -2,6 +2,7 @@ OUTPUT_DIR := "$(shell pwd)/build"
 NAME := "quorum-signer"
 VERSION := "0.1.0-SNAPSHOT"
 OS_ARCH := "$(shell go env GOOS)-$(shell go env GOARCH)"
+BUILD_LD_FLAGS=-s -w $(extraldflags)
 
 default: clean tools checkfmt test build
 
@@ -22,6 +23,7 @@ build:
 	@mkdir -p ${OUTPUT_DIR}
 	@echo Output to ${OUTPUT_DIR}
 	@GOFLAGS="-mod=readonly" go build \
+		-ldflags='$(BUILD_LD_FLAGS)' \
 		-o "${OUTPUT_DIR}/dist/${NAME}-${VERSION}-${OS_ARCH}" \
 		.
 
