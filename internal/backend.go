@@ -25,7 +25,6 @@ func BackendFactory(ctx context.Context, conf *logical.BackendConfig) (logical.B
 		Help:        strings.TrimSpace("Creates and stores Quorum accounts.  Signs data using those accounts.\n"),
 		BackendType: logical.TypeLogical,
 		Paths: []*framework.Path{
-			b.accountsPath(),
 			b.accountIDPath(),
 			b.signPath(),
 		},
@@ -45,22 +44,9 @@ func BackendFactory(ctx context.Context, conf *logical.BackendConfig) (logical.B
 	return b, nil
 }
 
-func (b *backend) accountsPath() *framework.Path {
-	return &framework.Path{
-		Pattern: fmt.Sprintf("%s/?$", acctPath),
-
-		Operations: map[logical.Operation]framework.OperationHandler{
-			logical.ListOperation: &framework.PathOperation{
-				Callback: b.listAccountIDs,
-				Summary:  "List account IDs",
-			},
-		},
-	}
-}
-
 func (b *backend) accountIDPath() *framework.Path {
 	return &framework.Path{
-		Pattern: fmt.Sprintf("%s/%s", acctPath, framework.GenericNameRegex("acctID")),
+		Pattern: fmt.Sprintf("%s/%s", acctPath, framework.MatchAllRegex("acctID")),
 
 		Fields: map[string]*framework.FieldSchema{
 			"acctID": {
@@ -86,6 +72,10 @@ func (b *backend) accountIDPath() *framework.Path {
 				Callback: b.updateAccount,
 				Summary:  "Generate and store new Quorum account, or import existing account by using the 'import' field.",
 			},
+			logical.ListOperation: &framework.PathOperation{
+				Callback: b.listAccountIDs,
+				Summary:  "List account IDs",
+			},
 		},
 		ExistenceCheck: b.accountExistenceCheck, // determines whether create or update operation is called
 	}
@@ -93,7 +83,7 @@ func (b *backend) accountIDPath() *framework.Path {
 
 func (b *backend) signPath() *framework.Path {
 	return &framework.Path{
-		Pattern: fmt.Sprintf("%s/%s", signPath, framework.GenericNameRegex("acctID")),
+		Pattern: fmt.Sprintf("%s/%s", signPath, framework.MatchAllRegex("acctID")),
 
 		Fields: map[string]*framework.FieldSchema{
 			"acctID": {
