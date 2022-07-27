@@ -1,6 +1,6 @@
 OUTPUT_DIR := "$(shell pwd)/build"
 NAME := "quorum-signer"
-VERSION := "0.1.0-SNAPSHOT"
+VERSION := "0.1.3-SNAPSHOT"
 OS_ARCH := "$(shell go env GOOS)-$(shell go env GOARCH)"
 BUILD_LD_FLAGS=-s -w $(extraldflags)
 
